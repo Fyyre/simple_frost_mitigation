@@ -169,4 +169,29 @@ pause
 - OPFS data is **volatile** by nature — losing it on reboot is usually harmless.
 - If issues arise after Chrome updates, re-run the setup batch.
 
+## macOS Version (Cowboy Style)
+
+On macOS you can do a similar targeted OPFS mitigation using a RAM disk:
+
+### Quick Setup (Terminal)
+```bash
+# 1. Create a 1GB RAM disk
+diskutil erasevolume HFS+ "OPFS_RAM" `hdiutil attach -nomount ram://2097152`
+
+# 2. Move existing OPFS (close Chrome first)
+mv ~/Library/Application\ Support/Google/Chrome/Default/File\ System /Volumes/OPFS_RAM/OPFS
+
+# 3. Create symlink
+ln -s /Volumes/OPFS_RAM/OPFS ~/Library/Application\ Support/Google/Chrome/Default/File\ System
+```
+
+### For persistence / automation
+- Use `LaunchAgents` or a simple script in `~/.zshrc` / Login items.
+- To save: `cp -a /Volumes/OPFS_RAM/OPFS ~/Backups/ChromeOPFS/`
+
+**Note**: macOS `/tmp` is also tmpfs-backed on modern versions and can be used for even simpler cowboy mode.
+
+## Linux Version (Cowboy Style)
+- /dev/shm is your friend!
+
 ## With hope this helps someone — Fyyre 2026/07/03
